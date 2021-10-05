@@ -1,0 +1,25 @@
+# Binaries, plugins, libs
+*.dll
+*.dylib
+*.exe
+*.exe~
+*.so
+
+# Testing
+*.test
+*.tmp
+
+# local
+.idea
+.DS_Store
+*.gob
+*.json
+
+# Environments
+.env
+env/
+ENV/
+env.bak/
+
+# https/tls
+tls/
