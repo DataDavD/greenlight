@@ -11,7 +11,13 @@ import (
 // createMovieHandler handles "POST /v1/movies" endpoint. For now, we just return a plain-text
 // placeholder response.
 func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "create a new movie")
+	_, err := fmt.Fprintln(w, "create a new movie")
+	if err != nil {
+		app.logger.Println(err)
+		http.Error(w, "The server encounterd a problem and could not process your request",
+			http.StatusInternalServerError)
+		return
+	}
 }
 
 // showMovieHandler handles "Get /v1/movies/:id" endpoint. For now, it returns plain-text
