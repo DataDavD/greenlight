@@ -9,6 +9,9 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+// Define an envelope type.
+type envelope map[string]interface{}
+
 // readIDParam reads interpolated "id" from request URL and returns it and nil. If there is an error
 // it returns and 0 and an error.
 func (app *application) readIDParam(r *http.Request) (int64, error) {
@@ -22,8 +25,8 @@ func (app *application) readIDParam(r *http.Request) (int64, error) {
 	return id, nil
 }
 
-func (app *application) writeJSON(w http.ResponseWriter, status int,
-	data interface{}, headers http.Header) error {
+func (app *application) writeJSON(w http.ResponseWriter, status int, data envelope,
+	headers http.Header) error {
 	// use the json.MarshalIndent() function so that whitespace is added to the encoded JSON. Use
 	// no line prefix and tab indents for each element.
 	js, err := json.MarshalIndent(data, "", "\t")
