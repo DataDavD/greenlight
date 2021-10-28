@@ -29,7 +29,7 @@ func (app *application) errorResponse(w http.ResponseWriter, r *http.Request, st
 	}
 }
 
-// serverErrorResponse method will be used when our application encounters an unexpected problem
+// serverErrorResponse method is used when our application encounters an unexpected problem
 // at runtime. it logs the detailed error message, then uses the errorResponse() helper to send a
 // 500 Internal Server Error status code and JSON response (containing the generic error message)
 // to the client
