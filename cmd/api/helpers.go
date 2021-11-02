@@ -30,7 +30,7 @@ func (app *application) readIDParam(r *http.Request) (int64, error) {
 
 func (app *application) writeJSON(w http.ResponseWriter, status int, data envelope,
 	headers http.Header) error {
-	// use the json.MarshalIndent() function so that whitespace is added to the encoded JSON. Use
+	// Use the json.MarshalIndent() function so that whitespace is added to the encoded JSON. Use
 	// no line prefix and tab indents for each element.
 	js, err := json.MarshalIndent(data, "", "\t")
 	if err != nil {
@@ -63,13 +63,15 @@ func (app *application) writeJSON(w http.ResponseWriter, status int, data envelo
 // readJSON decodes request Body into corresponding Go type. It triages for any potential errors
 // and returns corresponding appropriate errors.
 func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst interface{}) error {
+	// Use http.MaxBytesReader() to limit the size of the request body to 1MB to prevent
+	// any potential nefarious DoS attacks.
 	maxBytes := 1_048_576
-	r.Body = http.MaxBytesReader(w, r.Body, int64((maxBytes)))
+	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
 
 	// Initialize the json.Decoder, and call the DisallowUnknownFields() method on it
-	// before decoding. This means that if the JSON from the client now includes any
-	// field which cannot be mapped to the target destination, the decoder will return
-	// an error instead of just ignoring the field.
+	// before decoding. So, if the JSON from the client includes any field which
+	// cannot be mapped to the target destination, the decoder will return an error
+	// instead of just ignoring the field.
 	dec := json.NewDecoder(r.Body)
 	dec.DisallowUnknownFields()
 
@@ -115,14 +117,14 @@ func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst int
 		// If the JSON contains a field which cannot be mapped to the target destination
 		// then Decode() will now return an error message in the format "json: unknown
 		// field "<name>"". We check for this, extract the field name from the error,
-		// and interpolate it into our custom error
-		// issue at https://github.com/golang/go/issues/29035 regarding turning this
-		// into a distinct error type in the future.
+		// and interpolate it into our custom error message.
+		// Note, that there's an open issue at https://github.com/golang/go/issues/29035
+		// regarding turning this into a distinct error type in the future.
 		case strings.HasPrefix(err.Error(), "json: unknown field "):
 			fieldName := strings.TrimPrefix(err.Error(), "json: unknown field ")
 			return fmt.Errorf("body contains unknown key %s", fieldName)
 
-		// If the request body exceeds 1MB in size the decode will now fail with the
+		// If the request body exceeds 1MB in size then decode will now fail with the
 		// error "http: request body too large". There is an open issue about turning
 		// this into a distinct error type at https://github.com/golang/go/issues/30715.
 		case err.Error() == "http: request body too large":
@@ -143,9 +145,9 @@ func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst int
 	}
 
 	// Call Decode() again, using a pointer to an empty anonymous struct as the
-	// destination. If the request body only contained a single JSON value this will
+	// destination. If the request body only contained a single JSON value then this will
 	// return an io.EOF error. So if we get anything else, we know that there is
-	// additional data in the request body and we return our own custom error message.
+	// additional data in the request body, and we return our own custom error message.
 	err = dec.Decode(&struct{}{})
 	if err != io.EOF {
 		return errors.New("body must only contain a single JSON value")
