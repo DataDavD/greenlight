@@ -28,7 +28,7 @@ func (r Runtime) MarshalJSON() ([]byte, error) {
 	return []byte(quotedJSONValue), nil
 }
 
-// Implement a UnmarshalJSON() method on the Runtimet type so that it satisfies the
+// Implement an UnmarshalJSON() method on the Runtime type so that it satisfies the
 // json.Unmarshaler interface. IMPORTANT: because UnmarshalJSON() needs to modify the
 // receiver (our Runtime type), we must use a pointer receiver for this to work
 // correctly. Otherwise, we will only be modifiying a copy (which is then discarded then
