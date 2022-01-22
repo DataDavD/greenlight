@@ -53,7 +53,7 @@ func (app *application) writeJSON(w http.ResponseWriter, status int, data envelo
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	if _, err := w.Write([]byte(js)); err != nil {
-		app.logger.Println("error:", err)
+		app.infoLog.Println("error:", err)
 		return err
 	}
 
@@ -155,3 +155,12 @@ func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst int
 
 	return nil
 }
+
+// func deferFatalErrorFunc(app *application, err error) {
+// 	func() {
+// 		err := app.config.db.Close()
+// 		if err != nil {
+// 			app.infoLog.Fatal(err)
+// 		}
+// 	}()
+// }
