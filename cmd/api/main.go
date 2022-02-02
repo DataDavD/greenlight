@@ -46,12 +46,12 @@ func main() {
 	// We default to using the port number 4000 and the environment "development" if no
 	// corresponding flags are provided.
 	flag.IntVar(&cfg.port, "port", 4000, "API server port")
-	flag.StringVar(&cfg.env, "env", "development", "Enviroment (development|staging|production")
+	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production")
 	// Read the DSN Value from the db-dsn command-line flag into the config struct.
 	// We default to using our development DSN if no flag is provided.
 	pw := os.Getenv("DB_PW")
 	flag.StringVar(&cfg.db.dsn, "db-dsn",
-		fmt.Sprintf("postgres://greenlight:%s@localhost/greenlight",
+		fmt.Sprintf("postgres://greenlight:%s@localhost/greenlight?sslmode=disable",
 			pw), "PostgreSQL DSN")
 	flag.Parse()
 
