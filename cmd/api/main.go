@@ -10,6 +10,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/DataDavD/snippetbox/greenlight/internal/data"
 	// Import the pq driver so that it can register itself with the database/sql
 	// package. Note that we alias this import to the blank identifier, to stop the Go
 	// compiler complaining that the package isn't being used.
@@ -39,6 +40,7 @@ type application struct {
 	config   config
 	infoLog  *log.Logger
 	errorLog *log.Logger
+	models   data.Models
 }
 
 func main() {
@@ -99,6 +101,10 @@ func main() {
 	}()
 
 	infoLog.Printf("database connection pool established")
+
+	// Use the data.NewModels() function to add a Models struct to the application struct,
+	// passing in the database connection pool as a parameter.
+	app.models = data.NewModels(db)
 
 	// Use the httprouter instance returned by app.routes as the server handler.
 	srv := &http.Server{

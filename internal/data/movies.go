@@ -1,6 +1,7 @@
 package data
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/DataDavD/snippetbox/greenlight/internal/validator"
@@ -20,6 +21,32 @@ type Movie struct {
 	Genres    []string  `json:"genres,omitempty"`
 	Version   int32     `json:"version"` // The version number starts at 1 and is incremented each
 	// time the movie information is updated.
+}
+
+// MovieModel struct wraps a sql.DB connection pool and allows us to work with Movie struct type
+// and the movies table in our database.
+type MovieModel struct {
+	DB *sql.DB
+}
+
+// Insert is a placeholder method for inserting a new record in the movies table.
+func (m MovieModel) Insert(movie *Movie) error {
+	return nil
+}
+
+// Get is a placeholder method for fetching a specific record from the movies table.
+func (m Movie) Get(id int64) (*Movie, error) {
+	return nil, nil
+}
+
+// Update is a placeholder method for updating a specific record in the movies table.
+func (m Movie) Update(movie *Movie) error {
+	return nil
+}
+
+// Delete is a placeholder method for deleting a specific record in the movies table.
+func (m Movie) Delete(id int64) error {
+	return nil
 }
 
 // ValidateMovie runs validation checks on Movie type.
