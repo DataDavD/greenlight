@@ -2,6 +2,7 @@ package data
 
 import (
 	"database/sql"
+	"errors"
 	"time"
 
 	"github.com/DataDavD/snippetbox/greenlight/internal/validator"
@@ -46,9 +47,43 @@ func (m MovieModel) Insert(movie *Movie) error {
 	return m.DB.QueryRow(query, args...).Scan(&movie.ID, &movie.CreatedAt, &movie.Version)
 }
 
-// Get is a placeholder method for fetching a specific record from the movies table.
+// Get fetches a record from the movies table and returns the corresponding Movie struct.
 func (m MovieModel) Get(id int64) (*Movie, error) {
-	return nil, nil
+	// The PostgreSQL bigserial type that we're using for the movie ID starts auto-incrementing
+	// at 1 by default, so we know that no movies will have ID values less tan that.
+	// To avoid making an unnecessary database call,
+	// we take a shortcut and return an ErrRecordNotFound error straight away.
+	if id < 1 {
+		return nil, ErrRecordNotFound
+	}
+
+	query := `
+		SELECT id, created_at, title, year, runtime, genres, version
+        FROM movies
+ 		WHERE id = $1`
+
+	// Declare a movie struct to hold the data returned by the query.
+	var movie Movie
+
+	// Execute the query using the QueryRow() method, passing in the provided id value as a
+	// placeholder parameter, and scan the response data into the fields of the Movie struct.
+	// Importantly, notice that we need to convert the scan target for the genres column using
+	// the pq.Array() adapter function similarly to how it used in the MovieModel.Insert() method.
+	err := m.DB.QueryRow(query, id).Scan(&movie.ID, &movie.CreatedAt, &movie.Title, &movie.Year,
+		&movie.Runtime, pq.Array(&movie.Genres), &movie.Version)
+
+	// Handle any errors. If there was no matching movie found, Scan() will return a sql.ErrNoRows
+	// error. We check for this and return our custom ErrRecordNotFound error instead.
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	return &movie, nil
 }
 
 // Update is a placeholder method for updating a specific record in the movies table.
