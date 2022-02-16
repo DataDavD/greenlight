@@ -6,7 +6,7 @@ import (
 )
 
 // logError method is a generic helper for logging an error message in *application.
-// Right now its a basic infoLog.Println, but we'll upgrade this later to
+// Right now it's a basic infoLog.Println, but we'll upgrade this later to
 // use structured logging and record additional info about the request.
 func (app *application) logError(r *http.Request, err error) {
 	app.infoLog.Println(err)

@@ -34,8 +34,9 @@ type MovieModel struct {
 // new record and inserts the record into the movies table.
 func (m MovieModel) Insert(movie *Movie) error {
 	query := `
-INSERT INTO movies (title, year, runtime, genres) VALUES ($1, $2, $3, 
-$4) RETURNING id, created_at, version`
+		INSERT INTO movies (title, year, runtime, genres) 
+		VALUES ($1, $2, $3, $4) 
+		RETURNING id, created_at, version`
 
 	// Create an args slice containing the values for the placeholder parameters from the movie
 	// struct. Declaring this slice immediately next to our SQL query helps to make it nice and
