@@ -72,7 +72,6 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		app.infoLog.Println("inside err if statement after movies insert")
 		app.serverErrorResponse(w, r, err)
-		return
 	}
 }
 
@@ -108,10 +107,7 @@ func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request)
 	err = app.writeJSON(w, http.StatusOK, envelope{"movie": movie}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
-		return
 	}
-
-	return
 }
 
 func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Request) {
@@ -176,7 +172,6 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 	err = app.writeJSON(w, http.StatusOK, envelope{"movie": movie}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
-		return
 	}
 
 }

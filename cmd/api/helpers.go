@@ -28,6 +28,8 @@ func (app *application) readIDParam(r *http.Request) (int64, error) {
 	return id, nil
 }
 
+// writeJSON marshals data structure to encoded JSON response. It returns an error if there are
+// any issues, else error is nil.
 func (app *application) writeJSON(w http.ResponseWriter, status int, data envelope,
 	headers http.Header) error {
 	// Use the json.MarshalIndent() function so that whitespace is added to the encoded JSON. Use
