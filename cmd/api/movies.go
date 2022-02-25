@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/DataDavD/snippetbox/greenlight/internal/data"
 	"github.com/DataDavD/snippetbox/greenlight/internal/validator"
@@ -129,6 +130,15 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 			app.serverErrorResponse(w, r, err)
 		}
 		return
+	}
+
+	// If the request contains an X-Expected-Version, verify that the movie version in the database
+	// matches the expected version specified in the header.
+	if r.Header.Get("X-Expected-Version") != "" {
+		if strconv.FormatInt(int64(movie.Version), 10) != r.Header.Get("X-Expected-Version") {
+			app.editConflictResponse(w, r)
+			return
+		}
 	}
 
 	// Use pointers for Title, Year, and Runtime fields, so that we can use their zero values of
