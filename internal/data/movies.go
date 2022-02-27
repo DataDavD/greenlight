@@ -57,20 +57,27 @@ func (m MovieModel) Get(id int64) (*Movie, error) {
 		return nil, ErrRecordNotFound
 	}
 
+	// Update the query to return pg_sleep(10) as the first value. This is to mimic a
+	// long-running query.
 	query := `
-		SELECT id, created_at, title, year, runtime, genres, version
+		SELECT PG_SLEEP(10), id, created_at, title, year, runtime, genres, version
         FROM movies
  		WHERE id = $1`
 
 	// Declare a movie struct to hold the data returned by the query.
 	var movie Movie
 
-	// Execute the query using the QueryRow() method, passing in the provided id value as a
-	// placeholder parameter, and scan the response data into the fields of the Movie struct.
-	// Importantly, notice that we need to convert the scan target for the genres column using
-	// the pq.Array() adapter function similarly to how it used in the MovieModel.Insert() method.
-	err := m.DB.QueryRow(query, id).Scan(&movie.ID, &movie.CreatedAt, &movie.Title, &movie.Year,
-		&movie.Runtime, pq.Array(&movie.Genres), &movie.Version)
+	// Importantly, update the Scan() parameters so taht the pg_sleep(10) return value
+	// is scanned into a []byte slice.
+	err := m.DB.QueryRow(query, id).Scan(
+		&[]byte{},
+		&movie.ID,
+		&movie.CreatedAt,
+		&movie.Title,
+		&movie.Year,
+		&movie.Runtime,
+		pq.Array(&movie.Genres),
+		&movie.Version)
 
 	// Handle any errors. If there was no matching movie found, Scan() will return a sql.ErrNoRows
 	// error. We check for this and return our custom ErrRecordNotFound error instead.
