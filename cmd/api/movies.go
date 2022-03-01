@@ -10,8 +10,9 @@ import (
 	"github.com/DataDavD/snippetbox/greenlight/internal/validator"
 )
 
-// createMovieHandler handles "POST /v1/movies" endpoint. For now, we just return a plain-text
-// placeholder response.
+// createMovieHandler handles the "POST /v1/movies" endpoint and returns a JSON response of
+// the newly created movie record. If there is an error a JSON formatted error is
+// returned.
 func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Request) {
 	// Declare an anonymous struct to hold the information that we expect to be in the HTTP
 	// request body (not that the field names and types in the struct are a subset of the Movie
@@ -76,8 +77,9 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-// showMovieHandler handles "Get /v1/movies/:id" endpoint. For now, it returns plain-text
-// placeholder response using the interpolated "id" parameter from the current URL
+// showMovieHandler handles the "GET /v1/movies/:id" endpoint and returns a JSON response of the
+// requested movie record. If there is an error a JSON formatted error is
+// returned.
 func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request) {
 	// When httprouter is parsing a request, any interpolated URL Parameters will be stored
 	// in the request context. We can use the ParamsFromContext() function to retrieve a slice
@@ -111,6 +113,9 @@ func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request)
 	}
 }
 
+// updateMovieHandler handles "PATCH /v1/movies/:id" endpoint and returns a JSON response
+// of the updated movie record. If there is an error a JSON formatted error is
+// returned.
 func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Request) {
 	// Extract the movie ID from the URL.
 	id, err := app.readIDParam(r)
@@ -201,7 +206,7 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// WRite the updated movie record in a JSON response.
+	// Write the updated movie record in a JSON response.
 	err = app.writeJSON(w, http.StatusOK, envelope{"movie": movie}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -209,6 +214,9 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 
 }
 
+// deleteMovieHandler handles "DELETE /v1/movies/:id" endpoint and returns a 200 OK status code
+// with a success message in a JSON response. If there is an error a JSON formatted error is
+// returned.
 func (app *application) deleteMovieHandler(w http.ResponseWriter, r *http.Request) {
 	// Extract the movie ID from the URL.
 	id, err := app.readIDParam(r)
