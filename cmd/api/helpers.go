@@ -51,10 +51,10 @@ func (app *application) writeJSON(w http.ResponseWriter, status int, data envelo
 		w.Header()[key] = value
 	}
 
-	// Add the "Content-Type: application/json" header, the write the status code and JSON response.
+	// Add the "Content-Type: application/json" header, then write the status code and JSON response.
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	if _, err := w.Write([]byte(js)); err != nil {
+	if _, err := w.Write(js); err != nil {
 		app.infoLog.Println("error:", err)
 		return err
 	}
