@@ -12,7 +12,7 @@ type Filters struct {
 }
 
 // ValidateFilters runs validation checks on the Filters type.
-func ValidateFilters(v *validator.Validator, f *Filters) {
+func ValidateFilters(v *validator.Validator, f Filters) {
 	// Check that page and page_size parameters contain sensible values.
 	v.Check(f.Page > 0, "page", "must be greater than 0")
 	v.Check(f.Page <= 1_000_0000, "", "must be a maximum of 10 million")
