@@ -94,8 +94,7 @@ func main() {
 	// Defer a call to db.Close() so that the connection pool is closed before the main()
 	// function exits.
 	defer func() {
-		err := db.Close()
-		if err != nil {
+		if err := db.Close(); err != nil {
 			app.errorLog.Fatal(err)
 		}
 	}()
