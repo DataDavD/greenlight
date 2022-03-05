@@ -38,7 +38,8 @@ func (m MovieModel) Insert(movie *Movie) error {
 	query := `
 		INSERT INTO movies (title, year, runtime, genres) 
 		VALUES ($1, $2, $3, $4) 
-		RETURNING id, created_at, version`
+		RETURNING id, created_at, version
+		`
 
 	// Create a context with a 3-second timeout.
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -66,7 +67,8 @@ func (m MovieModel) Get(id int64) (*Movie, error) {
 	query := `
 		SELECT id, created_at, title, year, runtime, genres, version
         FROM movies
- 		WHERE id = $1`
+ 		WHERE id = $1
+ 		`
 
 	var movie Movie
 
@@ -108,7 +110,8 @@ func (m MovieModel) Update(movie *Movie) error {
 		UPDATE movies
 		SET title = $1, year = $2, runtime = $3, genres = $4, version = version + 1
 		WHERE id = $5 AND version = $6
-		RETURNING version`
+		RETURNING version
+		`
 
 	// Create an args slice containing the values for the placeholder parameters.
 	args := []interface{}{
@@ -148,7 +151,8 @@ func (m MovieModel) Delete(id int64) error {
 
 	query := `
 		DELETE FROM movies
-		WHERE id = $1`
+		WHERE id = $1
+		`
 
 	// Create a context with a 3-second timeout.
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
