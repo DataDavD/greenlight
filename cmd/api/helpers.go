@@ -96,7 +96,7 @@ func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst int
 
 		// In some circumstances Decode() may also return an io.ErrUnexpectedEOF error
 		// for syntax error in the JSON. So, we check for this using errors.Is() and return
-		// a generic error meessage. There is an open issue regarding this at
+		// a generic error message. There is an open issue regarding this at
 		// https://github.com/golang/go/issues/25956
 		case errors.Is(err, io.ErrUnexpectedEOF):
 			return errors.New("body contains badly-formed JSON")
@@ -179,13 +179,13 @@ func (app *application) readStrings(qs url.Values, key string, defaultValue stri
 // readCSV is a helper method on application type that reads a string value from the URL query
 // string and then splits it into a slice on the comma character. If no matching key is found
 // then it returns the provided default value.
-func (app *application) readCSV(qs url.Values, key string, defaultvalue []string) []string {
+func (app *application) readCSV(qs url.Values, key string, defaultValue []string) []string {
 	// Extract the value from the URL query string
 	csv := qs.Get(key)
 
 	// if no key exists (or the value is empty) then return the default value
 	if csv == "" {
-		return defaultvalue
+		return defaultValue
 	}
 
 	// Otherwise, parse the value into a []string slice and return it.

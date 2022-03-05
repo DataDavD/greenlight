@@ -34,7 +34,7 @@ type config struct {
 	}
 }
 
-// Define an application struct to hold dependencides for our HTTP handlers, helpers, and
+// Define an application struct to hold dependencies for our HTTP handlers, helpers, and
 // middleware.
 type application struct {
 	config   config

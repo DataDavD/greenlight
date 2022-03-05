@@ -11,7 +11,7 @@ import (
 )
 
 // Movie type whose fields describe the movie.
-// Note that the Runtime type uses a custom Runtime type instead of int32. Furthermore, the omitempy
+// Note that the Runtime type uses a custom Runtime type instead of int32. Furthermore, the omitempty
 // directive on the Runtime type will still work on this: if the Runtime field has the underlying
 // value 0, then it will be considered empty and omitted -- and the MarshalJSON() method won't
 // be called.

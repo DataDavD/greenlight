@@ -83,7 +83,7 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request) {
 	// When httprouter is parsing a request, any interpolated URL Parameters will be stored
 	// in the request context. We can use the ParamsFromContext() function to retrieve a slice
-	// containing these paremter names and values.
+	// containing these parameter names and values.
 	id, err := app.readIDParam(r)
 	if err != nil || id < 1 {
 		app.notFoundResponse(w, r)
@@ -258,8 +258,9 @@ func (app *application) listMoviesHandler(w http.ResponseWriter, r *http.Request
 	// call r.URL.Query() to get the url.Values map containing the query string data.
 	qs := r.URL.Query()
 
-	// Use our helpers to extract the title and genres query string values, falling back to defaults
-	// of an empty string and an empty slice, respectively, if they are not provided by the client.
+	// Use our helpers to extract the title and genres query string values, falling back to the
+	// defaults of an empty string and an empty slice, respectively, if they are not provided
+	// by the client.
 	input.Title = app.readStrings(qs, "title", "")
 	input.Genres = app.readCSV(qs, "genres", []string{})
 
@@ -288,7 +289,7 @@ func (app *application) listMoviesHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// Dump the contents of the input struct in a HTTP response.
+	// Dump the contents of the input struct in an HTTP response.
 	if _, err := fmt.Fprintf(w, "%+v\n", input); err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
