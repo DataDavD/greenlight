@@ -73,7 +73,7 @@ func main() {
 
 	// Initialize a new infoLog which writes messages to the STDOUT stream, prefixed
 	// with the current date and time.
-	infoLog := log.New(os.Stdout, "", log.Ldate|log.Ltime)
+	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
 	// Declare an instance of the application struct, containing the config struct and the infoLog.
