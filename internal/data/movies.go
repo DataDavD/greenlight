@@ -186,11 +186,16 @@ func (m MovieModel) Delete(id int64) error {
 	return nil
 }
 
-// GetAll returns a list of movies in the form of a string of Movie type.
+// GetAll returns a list of movies in the form of a string of Movie type based on a set of
+// provided filters.
 func (m MovieModel) GetAll(title string, genres []string, filters Filters) ([]*Movie, error) {
+	// Query has been updated with WHERE clauses to include filter conditions for
+	// case-insensitive title and genres filtering.
 	query := `
         SELECT id, created_at, title, year, runtime, genres, version
   		FROM movies
+        WHERE (LOWER(title) = LOWER($1) OR $1 = '')
+        AND (genres @> $2 OR $2 = '{}')
 		ORDER BY id
 		`
 
@@ -200,7 +205,7 @@ func (m MovieModel) GetAll(title string, genres []string, filters Filters) ([]*M
 
 	// Use QueryContext to execute the query. This returns a sql.Rows result set containing
 	// the result.
-	rows, err := m.DB.QueryContext(ctx, query)
+	rows, err := m.DB.QueryContext(ctx, query, title, pq.Array(genres))
 	if err != nil {
 		return nil, err
 	}
