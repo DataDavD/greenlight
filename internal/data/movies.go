@@ -214,7 +214,7 @@ func (m MovieModel) GetAll(title string, genres []string, filters Filters) ([]*M
 	}()
 
 	// Initialize an empty slice to hold the movie data.
-	var movies []*Movie
+	movies := []*Movie{}
 
 	// Use rows.Next to iterate through the rows in the result set.
 	for rows.Next() {
