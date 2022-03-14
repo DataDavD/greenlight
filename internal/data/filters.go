@@ -35,6 +35,9 @@ func (f Filters) sortColumn() string {
 		}
 	}
 
+	// The panic below should technically not happen because the Sort value should have already
+	// been checked when calling the ValidateFilters helper function. However, this is a sensible
+	// failsafe to help stop a SQL injection attach from occurring.
 	panic("unsafe sort parameter:" + f.Sort)
 }
 
