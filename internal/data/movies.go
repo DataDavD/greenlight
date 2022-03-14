@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 	"time"
 
@@ -189,15 +190,16 @@ func (m MovieModel) Delete(id int64) error {
 // GetAll returns a list of movies in the form of a string of Movie type based on a set of
 // provided filters.
 func (m MovieModel) GetAll(title string, genres []string, filters Filters) ([]*Movie, error) {
-	// Query has been updated with WHERE clauses to include filter conditions for
-	// case-insensitive title and genres filtering.
-	query := `
-        SELECT id, created_at, title, year, runtime, genres, version
-  		FROM movies
-        WHERE (to_tsvector('simple', title) @@ plainto_tsquery('simple', $1) OR $1 = '')
-        AND (genres @> $2 OR $2 = '{}')
-		ORDER BY id
-		`
+	// Add an ORDER BY clause and interpolate the sort column and direction using fmt.Sprintf.
+	// Importantly, notice that we also include a secondary sort on the movie ID to ensure
+	// a consistent ordering.
+	query := fmt.Sprintf(`
+		SELECT id, created_at, title, year, runtime, genres, version
+		FROM movies
+		WHERE (to_tsvector('simple', title) @@ plainto_tsquery('simple', $1) OR $1 = '')
+		AND (genres @> $2 OR $2 = '{}')
+		ORDER BY %s %s, id ASC`,
+		filters.sortColumn(), filters.sortDirection())
 
 	// Create a context with a 3-second timeout.
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
