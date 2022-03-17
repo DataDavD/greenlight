@@ -192,22 +192,27 @@ func (m MovieModel) Delete(id int64) error {
 func (m MovieModel) GetAll(title string, genres []string, filters Filters) ([]*Movie, error) {
 	// Add an ORDER BY clause and interpolate the sort column and direction using fmt.Sprintf.
 	// Importantly, notice that we also include a secondary sort on the movie ID to ensure
-	// a consistent ordering.
+	// a consistent ordering. Furthermore, we include LIMIT and OFFSET clauses with placeholder
+	// parameter values for pagination implementation.
 	query := fmt.Sprintf(`
 		SELECT id, created_at, title, year, runtime, genres, version
 		FROM movies
 		WHERE (to_tsvector('simple', title) @@ plainto_tsquery('simple', $1) OR $1 = '')
 		AND (genres @> $2 OR $2 = '{}')
-		ORDER BY %s %s, id ASC`,
+		ORDER BY %s %s, id ASC
+		LIMIT $3 OFFSET $4`,
 		filters.sortColumn(), filters.sortDirection())
 
 	// Create a context with a 3-second timeout.
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
+	// Organize our four placeholder parameter values in a slice.
+	args := []interface{}{title, pq.Array(genres), filters.limit(), filters.offset()}
+
 	// Use QueryContext to execute the query. This returns a sql.Rows result set containing
 	// the result.
-	rows, err := m.DB.QueryContext(ctx, query, title, pq.Array(genres))
+	rows, err := m.DB.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}
