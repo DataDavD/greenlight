@@ -291,14 +291,14 @@ func (app *application) listMoviesHandler(w http.ResponseWriter, r *http.Request
 
 	// Call the MovieModel.GetAll method to retrieve the movies, passing in the various filter
 	// parameters.
-	movies, err := app.models.Movies.GetAll(input.Title, input.Genres, input.Filters)
+	movies, metadata, err := app.models.Movies.GetAll(input.Title, input.Genres, input.Filters)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
 	// Send a JSON response containing the movie data.
-	if err := app.writeJSON(w, http.StatusOK, envelope{"movies": movies}, nil); err != nil {
+	if err := app.writeJSON(w, http.StatusOK, envelope{"movies": movies, "metadata": metadata}, nil); err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
 }
