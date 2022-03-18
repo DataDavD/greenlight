@@ -1,6 +1,7 @@
 package data
 
 import (
+	"math"
 	"strings"
 
 	"github.com/DataDavD/snippetbox/greenlight/internal/validator"
@@ -11,6 +12,33 @@ type Filters struct {
 	PageSize     int
 	Sort         string
 	SortSafeList []string
+}
+
+// Metadata holds pagination metadata.
+type Metadata struct {
+	CurrentPage  int `json:"current_page,omitempty"`
+	PageSize     int `json:"page_size,omitempty"`
+	FirstPage    int `json:"first_page,omitempty"`
+	LastPage     int `json:"last_page,omitempty"`
+	TotalRecords int `json:"total_records,omitempty"`
+}
+
+// calculateMetadata calculates the appropriate pagination metadata values given the total number
+// of records, current page, and page size values. Note, the last page value is calculated using the
+// math.Ceil() function, which rounds up a float to the nearest integer. So, for example, if there
+// were 13 records in total and a page size of 5, the last page value would be math.Ceil(13/5) = 3.
+func calculateMetadata(totalRecords, page, pageSize int) Metadata {
+	if totalRecords == 0 {
+		return Metadata{} // return an empty Metadata struct if there are no records
+	}
+
+	return Metadata{
+		CurrentPage:  page,
+		PageSize:     pageSize,
+		FirstPage:    1,
+		LastPage:     int(math.Ceil(float64(totalRecords) / float64(pageSize))),
+		TotalRecords: totalRecords,
+	}
 }
 
 // ValidateFilters runs validation checks on the Filters type.
