@@ -5,11 +5,13 @@ import (
 	"net/http"
 )
 
-// logError method is a generic helper for logging an error message in *application.
-// Right now it's a basic infoLog.Println, but we'll upgrade this later to
-// use structured logging and record additional info about the request.
+// logError method is a generic helper for logging an error message in *application, as well
+// as the requested method and request URL.
 func (app *application) logError(r *http.Request, err error) {
-	app.infoLog.Println(err)
+	app.logger.PrintError(err, map[string]string{
+		"request_method": r.Method,
+		"request_url":    r.URL.String(),
+	})
 }
 
 // errorResponse method is a generic helper for sending JSON-formatted error messages to the

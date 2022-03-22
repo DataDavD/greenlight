@@ -57,7 +57,7 @@ func (app *application) writeJSON(w http.ResponseWriter, status int, data envelo
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	if _, err := w.Write(js); err != nil {
-		app.infoLog.Println("error:", err)
+		app.logger.PrintError(err, nil)
 		return err
 	}
 

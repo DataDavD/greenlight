@@ -5,12 +5,13 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"time"
 
 	"github.com/DataDavD/snippetbox/greenlight/internal/data"
+	"github.com/DataDavD/snippetbox/greenlight/internal/jsonlog"
+
 	// Import the pq driver so that it can register itself with the database/sql
 	// package. Note that we alias this import to the blank identifier, to stop the Go
 	// compiler complaining that the package isn't being used.
@@ -37,10 +38,9 @@ type config struct {
 // Define an application struct to hold dependencies for our HTTP handlers, helpers, and
 // middleware.
 type application struct {
-	config   config
-	infoLog  *log.Logger
-	errorLog *log.Logger
-	models   data.Models
+	config config
+	logger *jsonlog.Logger
+	models data.Models
 }
 
 func main() {
@@ -71,39 +71,34 @@ func main() {
 
 	flag.Parse()
 
-	// Initialize a new infoLog which writes messages to the STDOUT stream, prefixed
-	// with the current date and time.
-	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
-	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
-
-	// Declare an instance of the application struct, containing the config struct and the infoLog.
-	app := &application{
-		config:   cfg,
-		infoLog:  infoLog,
-		errorLog: errorLog,
-	}
+	// Initialize a new jsonlog.Logger which writes any messages *at or above* the INFO
+	// severity level to the standard out stream.
+	logger := jsonlog.NewLogger(os.Stdout, jsonlog.LevelInfo)
 
 	// Call the openDB() helper function (see below) to create teh connection pool,
 	// passing in the config struct. If this returns an error,
 	// we log it and exit the application immediately.
 	db, err := openDB(cfg)
 	if err != nil {
-		app.errorLog.Fatal(err)
+		logger.PrintFatal(err, nil)
 	}
 
 	// Defer a call to db.Close() so that the connection pool is closed before the main()
 	// function exits.
 	defer func() {
 		if err := db.Close(); err != nil {
-			app.errorLog.Fatal(err)
+			logger.PrintFatal(err, nil)
 		}
 	}()
 
-	infoLog.Printf("database connection pool established")
+	logger.PrintInfo("database connection pool established", nil)
 
-	// Use the data.NewModels() function to add a Models struct to the application struct,
-	// passing in the database connection pool as a parameter.
-	app.models = data.NewModels(db)
+	// Declare an instance of the application struct, containing the config struct and the infoLog.
+	app := &application{
+		config: cfg,
+		logger: logger,
+		models: data.NewModels(db),
+	}
 
 	// Use the httprouter instance returned by app.routes as the server handler.
 	srv := &http.Server{
@@ -114,12 +109,19 @@ func main() {
 		WriteTimeout: 30 * time.Second,
 	}
 
-	// Start the HTTP server.
-	app.infoLog.Printf("starting the %s server on %s", cfg.env, srv.Addr)
+	// Again, we use the PrintInfo() method to write a "starting server" message at the INFO level.
+	// But this time we pass a map containing additional properties (the oeprating environment
+	// and server address) as the final parameters).
+	logger.PrintInfo("starting server", map[string]string{
+		"addr": srv.Addr,
+		"env":  cfg.env,
+	})
+
 	// Because the "err" variable is now already declared in the code above,
 	// we need to use the = operator here, instead of the := operator.
 	if err = srv.ListenAndServe(); err != nil {
-		app.errorLog.Fatal(err)
+		// Log error and exit.
+		logger.PrintFatal(err, nil)
 	}
 }
 
