@@ -56,7 +56,6 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 	// system-generated information.
 	err = app.models.Movies.Insert(movie)
 	if err != nil {
-		app.infoLog.Println("inside err if statement after movies insert")
 		app.serverErrorResponse(w, r, err)
 		return
 	}
@@ -72,7 +71,6 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 	// and the Location header.
 	err = app.writeJSON(w, http.StatusCreated, envelope{"movie": movie}, headers)
 	if err != nil {
-		app.infoLog.Println("inside err if statement after movies insert")
 		app.serverErrorResponse(w, r, err)
 	}
 }
