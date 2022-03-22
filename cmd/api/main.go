@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -102,8 +103,15 @@ func main() {
 
 	// Use the httprouter instance returned by app.routes as the server handler.
 	srv := &http.Server{
-		Addr:         fmt.Sprintf(":%d", cfg.port),
-		Handler:      app.routes(),
+		Addr:    fmt.Sprintf(":%d", cfg.port),
+		Handler: app.routes(),
+		// Create a new Go log.Logger instance with the log.New() function, passing in our customer
+		// Logger as the first parameter.
+		// This will ensure that any log messages http.Server writes will be passed to our
+		// Logger.Write() method which will output a log entry in JSON format at the ERROR level.
+		// The "" and 0 indicate that the log.Logger instance should
+		// not use a prefix or any flags.
+		ErrorLog:     log.New(logger, "", 0),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
