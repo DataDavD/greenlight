@@ -7,8 +7,8 @@ import (
 	"strings"
 )
 
-// Custom error that our UnmarshalJSON() method will return if we're unable to parse or convert
-// the JSON string successfully.
+// ErrInvalidRuntimeFormat returns error when we are unable to parse or convert a JSON string
+// successfully. This is used in our Runtime.UnmarshalJSON() method.
 var ErrInvalidRuntimeFormat = errors.New("invalid runtime format")
 
 type Runtime int32
