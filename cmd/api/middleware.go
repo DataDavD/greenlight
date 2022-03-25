@@ -18,7 +18,7 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 			// Use the builtin recover function to check if there has been a panic or not.
 			if err := recover(); err != nil {
 				// If there was a panic, set a "Connection: close" header on the response. This
-				// acts a a trigger to make Go's HTTP server automatically close the current
+				// acts a trigger to make Go's HTTP server automatically close the current
 				// connection after a response has been sent.
 				w.Header().Set("Connection:", "close")
 				// The value returned by recover() has the type interface{}, so we use
