@@ -5,6 +5,7 @@ import (
 	"net"
 	"net/http"
 	"sync"
+	"time"
 
 	"golang.org/x/time/rate"
 )
@@ -36,12 +37,41 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 }
 
 func (app *application) rateLimit(next http.Handler) http.Handler {
-	// Declare a mutex and a map to hold the clients' IP addresses and rate limiters.
+	// Define a client struct to hold the rate limiter and last seen time for reach client
+	type client struct {
+		limiter  *rate.Limiter
+		lastSeen time.Time
+	}
+
+	// Declare a mutex and a map to hold pointers to a client struct.
 	var (
 		mu      sync.Mutex
-		clients = make(map[string]*rate.Limiter)
+		clients = make(map[string]*client)
 	)
-	// The function we ar returning is a closure, which 'closes over' the limiter variable
+
+	// Launch a background goroutine which removes old entries from the clients map once every
+	// minute.
+	go func() {
+		for {
+			time.Sleep(time.Minute)
+
+			// Lock the mutex to prevent any rate limiter checks from happening while the cleanup
+			// is taking place.
+			mu.Lock()
+
+			// Loop through all clients. if they haven't been seen within the last three minutes,
+			// then delete the corresponding entry from the clients map.
+			for ip, client := range clients {
+				if time.Since(client.lastSeen) > 3*time.Minute {
+					delete(clients, ip)
+				}
+			}
+
+			// Importantly, unlock the mutex when the cleanup is complete.
+			mu.Unlock()
+		}
+	}()
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Extract the client's IP address from the request
 		ip, _, err := net.SplitHostPort(r.RemoteAddr)
@@ -56,13 +86,17 @@ func (app *application) rateLimit(next http.Handler) http.Handler {
 		// Check to see if the IP address already exists in the map. If it doesn't,
 		// then initialize a new rate limiter and add teh IP address and limiter to the map.
 		if _, found := clients[ip]; !found {
-			clients[ip] = rate.NewLimiter(2, 4)
+			// Create and add a new client struct to the map if it doesn't already exist.
+			clients[ip] = &client{limiter: rate.NewLimiter(2, 4)}
 		}
+
+		// Update the last seen time for the client.
+		clients[ip].lastSeen = time.Now()
 
 		// Call the limiter.Allow() method on the rate limiter for the current IP address.
 		// If the request isn't allowed, unlock the mutex and send a 429 Too Many Requests
 		// response.
-		if !clients[ip].Allow() {
+		if !clients[ip].limiter.Allow() {
 			mu.Unlock()
 			app.rateLimitExceededResponse(w, r)
 			return
