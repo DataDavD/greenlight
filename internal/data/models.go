@@ -18,6 +18,7 @@ var (
 // Models struct is a single convenient container to hold and represent all our database models.
 type Models struct {
 	Movies MovieModel
+	Users  UserModel
 }
 
 func NewModels(db *sql.DB) Models {
@@ -25,6 +26,11 @@ func NewModels(db *sql.DB) Models {
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 	return Models{
 		Movies: MovieModel{
+			DB:       db,
+			InfoLog:  infoLog,
+			ErrorLog: errorLog,
+		},
+		Users: UserModel{
 			DB:       db,
 			InfoLog:  infoLog,
 			ErrorLog: errorLog,
