@@ -37,6 +37,8 @@ func New(host string, port int, username, password, sender string) Mailer {
 	}
 }
 
+// Send takes a recipient email address, name of a template file, and any dynamic data and
+// sends the executed template as an email.
 func (m Mailer) Send(recipient, templateFile string, data interface{}) error {
 	// Use the ParseFS() method to parse the required template file from the embedded
 	// file system.
