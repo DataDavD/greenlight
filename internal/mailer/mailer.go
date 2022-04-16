@@ -82,13 +82,22 @@ func (m Mailer) Send(recipient, templateFile string, data interface{}) error {
 	msg.SetBody("text/plain", plainBody.String())
 	msg.AddAlternative("text/html", htmlBody.String())
 
-	// Call the DialAndSend() method on the dialer, passing in the message to send.
-	// This opens a connection to the SMTP server, sends the message, then closes the connection.
-	// If there is a timeout, it will return a "dial tcp: i/o timeout" error.
-	err = m.dialer.DialAndSend(msg)
-	if err != nil {
-		return err
+	// Try sending the email up to 3 times before aborting and returning the final error. We sleep
+	// for 500 ms between each attempt. Note, we check for send failure with `if nil == err`
+	// because its more visually jarring and less likely to be confused with `if err != nil`
+	for i := 1; i <= 3; i++ {
+		// Call the DialAndSend() method on the dialer, passing in the message to send.
+		// This opens a connection to the SMTP server, sends the message, then closes the connection.
+		// If there is a timeout, it will return a "dial tcp: i/o timeout" error.
+		err = m.dialer.DialAndSend(msg)
+		if nil == err {
+			return nil
+		}
+
+		// If it didn't work, sleep for a short time and retyr.
+		time.Sleep(500 * time.Millisecond)
 	}
 
-	return nil
+	// return err if we haven't been able to send the email after 3 tries.
+	return err
 }
