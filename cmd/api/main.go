@@ -10,6 +10,7 @@ import (
 
 	"github.com/DataDavD/snippetbox/greenlight/internal/data"
 	"github.com/DataDavD/snippetbox/greenlight/internal/jsonlog"
+	"github.com/DataDavD/snippetbox/greenlight/internal/mailer"
 
 	// Import the pq driver so that it can register itself with the database/sql
 	// package. Note that we alias this import to the blank identifier, to stop the Go
@@ -39,6 +40,13 @@ type config struct {
 		burst   int
 		enabled bool
 	}
+	smtp struct {
+		host     string
+		port     int
+		username string
+		password string
+		sender   string
+	}
 }
 
 // Define an application struct to hold dependencies for our HTTP handlers, helpers, and
@@ -47,6 +55,7 @@ type application struct {
 	config config
 	logger *jsonlog.Logger
 	models data.Models
+	mailer mailer.Mailer
 }
 
 func main() {
@@ -81,6 +90,16 @@ func main() {
 	flag.IntVar(&cfg.limiter.burst, "limiter-burst", 4, "Rate limiter maximum burst")
 	flag.BoolVar(&cfg.limiter.enabled, "limiter-enabled", true, "Enable rate limiter")
 
+	// Read the SMTP server configuration settings into the config struct, using the
+	// Mailtrap settings as teh default values.
+	mtUser := os.Getenv("MAILTRAP_USER")
+	mtPw := os.Getenv("MAILTRAP_PW")
+	flag.StringVar(&cfg.smtp.host, "smtp-host", "smtp.mailtrap.io", "SMTP host")
+	flag.IntVar(&cfg.smtp.port, "smtp-port", 2525, "SMTP port")
+	flag.StringVar(&cfg.smtp.username, "smtp-username", mtUser, "SMTP username")
+	flag.StringVar(&cfg.smtp.password, "smtp-password", mtPw, "SMTP password")
+	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "DoNotReply <3fc3f54366-09689f+1@inbox.mailtrap.io>", "SMTP sender")
+
 	flag.Parse()
 
 	// Initialize a new jsonlog.Logger which writes any messages *at or above* the INFO
@@ -110,6 +129,7 @@ func main() {
 		config: cfg,
 		logger: logger,
 		models: data.NewModels(db),
+		mailer: mailer.New(cfg.smtp.host, cfg.smtp.port, cfg.smtp.username, cfg.smtp.password, cfg.smtp.sender),
 	}
 
 	// Call app.server() to start the server.
