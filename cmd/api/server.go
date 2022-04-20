@@ -41,10 +41,10 @@ func (app *application) serve() error {
 		// received.
 		s := <-quit
 
-		// Log a message to say server is shutting down. Notice that we also call the
+		// Log a message to say we caught the signal. Notice that we also call the
 		// String() method on the signal to get the signal name and include it in the log
 		// entry properties.
-		app.logger.PrintInfo("shutting down server", map[string]string{
+		app.logger.PrintInfo("caught signal", map[string]string{
 			"signal": s.String(),
 		})
 
@@ -52,12 +52,25 @@ func (app *application) serve() error {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
-		// Call Shutdown() on our server, passing in the context we just made.
-		// Shutdown() will return a nil if the graceful shutdown was successful, or an
-		// error (which may happen because of a problem closing the listeners, or because
-		// the shutdown didn't complete before the 5-second context deadline is hit).
-		// We relay this return value to the shutdownError channel.
-		shutdownError <- srv.Shutdown(ctx)
+		// call Shutdown on the server, and only send on the shutdownError channel if it returns
+		// an error
+		err := srv.Shutdown(ctx)
+		if err != nil {
+			shutdownError <- err
+		}
+
+		// Log a message to say that we're waiting for any background goroutines to complete
+		// their tasks.
+		app.logger.PrintInfo("completing background tasks", map[string]string{
+			"addr": srv.Addr,
+		})
+
+		// Call Wait() to block until our WaitGroup counter is zero. This essentially blocks
+		// until the background goroutines have finished. Then we return nil on the shutdownError
+		// channel to indicate that the shutdown as compleeted without any issues.
+		app.wg.Wait()
+		shutdownError <- nil
+
 	}()
 
 	// Log a "starting server" message.
