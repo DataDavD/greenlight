@@ -184,6 +184,7 @@ func (m UserModel) Update(user *User) error {
 	return nil
 }
 
+// GetForToken retrieves a user record from the users table for an associated token and token scope.
 func (m UserModel) GetForToken(tokenScope, tokenPlaintext string) (*User, error) {
 	// Calculate the SHA-256 hash for the plaintext token provided by the client.
 	// Note, that this will return a byte *array* with length 32, not a slice.
