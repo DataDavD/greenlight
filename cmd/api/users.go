@@ -104,3 +104,69 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		app.serverErrorResponse(w, r, err)
 	}
 }
+
+// activateUserHandler activates a user by setting 'activation = true' using the provided
+// activation token in the request body.
+func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Request) {
+	// Parse the plaintext activation token from the request body
+	var input struct {
+		TokenPlaintext string `json:"token"`
+	}
+
+	err := app.readJSON(w, r, &input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	// Validate the plaintext token provided by the client.
+	v := validator.New()
+
+	if data.ValidateTokenPlaintext(v, input.TokenPlaintext); !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	// Retrieve the details of the user associated with the token using the GetForToken() method.
+	// If no matching record is found, then we let the client know that the token they provided
+	// is not valid.
+	user, err := app.models.Users.GetForToken(data.ScopeActivation, input.TokenPlaintext)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			v.AddError("token", "invalid or expired activation token")
+			app.failedValidationResponse(w, r, v.Errors)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	// Update the user's activation status.
+	user.Activated = true
+
+	// Save the updated user record in our database, checking for any edit conflicts in the same
+	// way that we did for our move records.
+	err = app.models.Users.Update(user)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrEditConflict):
+			app.editConflictResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	// If everything went successfully above, then delete all activation tokens for the user.
+	err = app.models.Tokens.DeleteAllForUser(data.ScopeActivation, user.ID)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"user": user}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
