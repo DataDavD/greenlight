@@ -197,7 +197,10 @@ func (m UserModel) GetForToken(tokenScope, tokenPlaintext string) (*User, error)
 		FROM       users
         INNER JOIN tokens
 			ON users.id = tokens.user_id
-        WHERE tokens.hash = $1
+        WHERE tokens.hash = $1  --<-- Note: this is potentially vulnerable to a timing attack, 
+            -- but if successful the attacker would only be able to retrieve a *hashed* token 
+            -- which would still require a brute-force attack to find the 26 character string
+            -- that has the same SHA-256 hash that was found from our database. 
 			AND tokens.scope = $2
 			AND tokens.expiry > $3
 		`
