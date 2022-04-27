@@ -76,7 +76,16 @@ func (app *application) editConflictResponse(w http.ResponseWriter, r *http.Requ
 	app.errorResponse(w, r, http.StatusConflict, message)
 }
 
+// rateLimitExceedResponse sends a JSON-formatted error message with a 429 Too Many Requests
+// status code to the client.
 func (app *application) rateLimitExceededResponse(w http.ResponseWriter, r *http.Request) {
 	message := "rate limited exceeded"
 	app.errorResponse(w, r, http.StatusTooManyRequests, message)
+}
+
+// invalidCredentialsResponse sends a JSON-formatted error with a 401 Unauthorized status code
+// to the client.
+func (app *application) invalidCredentialsResponse(w http.ResponseWriter, r *http.Request) {
+	message := "invalid authentication credentials"
+	app.errorResponse(w, r, http.StatusUnauthorized, message)
 }
