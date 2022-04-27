@@ -13,17 +13,20 @@ import (
 )
 
 // ScopeActivation defines the "activate" scope for scope in the tokens table.
-const ScopeActivation = "activation"
+const (
+	ScopeActivation     = "activation"
+	ScopeAuthentication = "authentication"
+)
 
 type (
 	// Token represents a token record in our tokens table.
 	// Note, it includes plaintext and hashed version of the token.
 	Token struct {
-		Plaintext string
-		Hash      []byte
-		UserID    int64
-		Expiry    time.Time
-		Scope     string
+		Plaintext string    `json:"token"`
+		Hash      []byte    `json:"-"`
+		UserID    int64     `json:"-"`
+		Expiry    time.Time `json:"expiry"`
+		Scope     string    `json:"-"`
 	}
 
 	// TokenModel struct wraps a sql.DB connection pool and allows us to work with the Token struct
