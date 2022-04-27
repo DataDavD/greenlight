@@ -137,7 +137,6 @@ func (m UserModel) GetByEmail(email string) (*User, error) {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
 			return nil, ErrRecordNotFound
-
 		default:
 			return nil, err
 		}
