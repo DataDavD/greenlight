@@ -16,6 +16,8 @@ var (
 	ErrDuplicateEmail = errors.New("duplicate email")
 )
 
+var AnonymousUser = &User{}
+
 // User type whose fields describe a user. Note, that we use the json:"-" struct tag to prevent
 // the Password and Version fields from appearing in any output when we encode it to JSON.
 // Also, notice that the Password field uses the custom password type defined below.
@@ -27,6 +29,10 @@ type User struct {
 	Password  password  `json:"-"`
 	Activated bool      `json:"activated"`
 	Version   int       `json:"-"`
+}
+
+func (u *User) isAnonymous() bool {
+	return u == AnonymousUser
 }
 
 // UserModel struct wraps a sql.DB connection pool and allows us to work with the User struct type
