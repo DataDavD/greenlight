@@ -90,7 +90,7 @@ func (app *application) rateLimit(next http.Handler) http.Handler {
 			mu.Lock()
 
 			// Check to see if the IP address already exists in the map. If it doesn't,
-			// then initialize a new rate limiter and add teh IP address and limiter to the map.
+			// then initialize a new rate limiter and add the IP address and limiter to the map.
 			if _, found := clients[ip]; !found {
 				// Use the requests-per-second and burst values from the app.config struct.
 				clients[ip] = &client{
@@ -242,4 +242,12 @@ func (app *application) requirePermissions(code string, next http.HandlerFunc) h
 
 	// Wrap this with the requireActivatedUser middleware before returning
 	return app.requireActivatedUser(fn)
+}
+
+func (app *application) enableCORS(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+
+		next.ServeHTTP(w, r)
+	})
 }
