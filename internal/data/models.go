@@ -20,7 +20,7 @@ type Models struct {
 	Movies      MovieModel
 	Users       UserModel
 	Tokens      TokenModel
-	Permissions PermissionMode1
+	Permissions PermissionModel
 }
 
 func NewModels(db *sql.DB) Models {
@@ -42,7 +42,7 @@ func NewModels(db *sql.DB) Models {
 			InfoLog:  infoLog,
 			ErrorLog: errorLog,
 		},
-		Permissions: PermissionMode1{
+		Permissions: PermissionModel{
 			DB:       db,
 			InfoLog:  infoLog,
 			ErrorLog: errorLog,
