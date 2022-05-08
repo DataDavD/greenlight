@@ -1,6 +1,7 @@
 package main
 
 import (
+	"expvar"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -18,7 +19,11 @@ func (app *application) routes() http.Handler {
 	// error handler for 405 Method Not Allowed responses
 	router.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowedResponse)
 
+	// healthcheck
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthcheckHandler)
+
+	// application metrics handler
+	router.Handler(http.MethodGet, "/debug/vars", expvar.Handler())
 
 	// Movies handlers. Note, that these movie endpoints use the `requireActivatedUser` middleware.
 	router.HandlerFunc(http.MethodGet, "/v1/movies", app.requirePermissions("movies:read", app.listMoviesHandler))
