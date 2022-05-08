@@ -276,6 +276,9 @@ func (app *application) enableCORS(next http.Handler) http.Handler {
 						w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, PUT, PATCH, DELETE")
 						w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
 
+						// Set max cached times for headers for 60 seconds.
+						w.Header().Set("Access-Control-Max-Age", "60")
+
 						// Write the headers along with a 200 OK status and return from the
 						// middleware with no further action.
 						w.WriteHeader(http.StatusOK)
