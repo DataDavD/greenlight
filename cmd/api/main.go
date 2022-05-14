@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"expvar"
 	"flag"
 	"fmt"
 	"os"
@@ -139,6 +140,10 @@ func main() {
 	}()
 
 	logger.PrintInfo("database connection pool established", nil)
+
+	// Publish a new "version" varaible in the expar var handler containing our application
+	// version number.
+	expvar.NewString("version").Set(version)
 
 	// Declare an instance of the application struct, containing the config struct and the infoLog.
 	app := &application{
