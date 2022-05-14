@@ -7,6 +7,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -144,6 +145,21 @@ func main() {
 	// Publish a new "version" varaible in the expar var handler containing our application
 	// version number.
 	expvar.NewString("version").Set(version)
+
+	// Publish the number of activate goroutines.
+	expvar.Publish("goroutines", expvar.Func(func() interface{} {
+		return runtime.NumGoroutine()
+	}))
+
+	// Publish the database connection pool statistics.
+	expvar.Publish("database", expvar.Func(func() interface{} {
+		return db.Stats()
+	}))
+
+	// Publish the current Unix timestamp.
+	expvar.Publish("timestamp", expvar.Func(func() interface{} {
+		return time.Now().Unix()
+	}))
 
 	// Declare an instance of the application struct, containing the config struct and the infoLog.
 	app := &application{
