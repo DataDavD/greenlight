@@ -1,3 +1,5 @@
+GREENLIGHT_DB_DSN := "postgres://greenlight:${DB_PW}@localhost/greenlight?sslmode=disable"
+
 ## help: print this help message
 .PHONY: help
 help:
@@ -11,12 +13,12 @@ confirm:
 ## run/api: run the cmd/api application
 .PHONY: run/api
 run/api:
-	go run ./cmd/api
+	go run ./cmd/api -db-dsn=${GREENLIGHT_DB_DSN}
 
 ## db/psql: connect to the database using psql
 .PHONY: db/sql
 db/psql:
-	psql "postgres://greenlight:${DB_PW}@localhost/greenlight?sslmode=disable"
+	psql ${GREENLIGHT_DB_DSN}
 
 ## db/migrations/new name=$1: create a new database migration
 .PHONY: db/migrations/new
