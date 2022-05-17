@@ -1,13 +1,13 @@
-run:
+run/api:
 	go run ./cmd/api
 
-psql:
+db/psql:
 	psql "postgres://greenlight:${DB_PW}@localhost/greenlight?sslmode=disable"
 
-migration:
+db/migrations/new:
 	@echo 'Creating migration files for ${name}'
 	migrate create -seq -ext=.sql -dir=./migrations ${name}
 
-up:
+db/migrations/up:
 	@echo 'Running up migrations...'
 	migrate -path="./migrations" -database "postgres://greenlight:${DB_PW}@localhost/greenlight?sslmode=disable" up
