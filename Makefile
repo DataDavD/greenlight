@@ -64,3 +64,13 @@ vendor:
 	go mod verify
 	@echo 'Vendoring dependencies'
 	go mod vendor
+
+# ==================================================================================== #
+# BUILD
+# ==================================================================================== #
+
+## build/api: build the cmd/api application
+.PHONY: build/api
+build/api:
+	@echo 'Building cmd/api...'
+	go build -o=./bin/api ./cmd/api
