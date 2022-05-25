@@ -4,6 +4,7 @@
 *.exe
 *.exe~
 *.so
+bin/
 
 # Testing
 *.test
