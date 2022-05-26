@@ -15,6 +15,7 @@ import (
 	"github.com/DataDavD/snippetbox/greenlight/internal/data"
 	"github.com/DataDavD/snippetbox/greenlight/internal/jsonlog"
 	"github.com/DataDavD/snippetbox/greenlight/internal/mailer"
+	"github.com/DataDavD/snippetbox/greenlight/internal/vcs"
 
 	// Import the pq driver so that it can register itself with the database/sql
 	// package. Note that we alias this import to the blank identifier, to stop the Go
@@ -22,8 +23,10 @@ import (
 	_ "github.com/lib/pq"
 )
 
-// Declare a string containing the application version number
-const version = "1.0.0"
+// Set version of application corresponding to value of vcs.Version.
+var (
+	version = vcs.Version()
+)
 
 // Define a config struct.
 type config struct {
