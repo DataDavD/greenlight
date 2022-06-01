@@ -1,0 +1,3 @@
+http://144.126.210.226 {
+    reverse_proxy localhost:4000
+}
