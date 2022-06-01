@@ -1,4 +1,10 @@
-http://144.126.210.226 {
+# Set the email address that should be used for contact if there is a problem with the TLS
+# certificate.
+{
+    email you@example.com
+}
+
+144.126.210.226 {
     respond /debug/* "Not Permitted" 403
     reverse_proxy localhost:4000
 }
