@@ -1,3 +1,5 @@
+### Update: finished May 31, 2022
+
 Repo for **greenlight** project as part of Let's Go Further book by Alex Edwards
 (found [here](https://lets-go-further.alexedwards.net)). It is the continuation book from his 
 original, [Let's Go](https://lets-go.alexedwards.net), which was a great intro to Go web 
